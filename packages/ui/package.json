@@ -1,0 +1,11 @@
+{
+  "name": "@scribbleui/ui",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Scribble UI component sources — distributed via the registry, not npm.",
+  "type": "module",
+  "dependencies": {
+    "@scribbleui/engine": "*",
+    "@scribbleui/text": "*"
+  }
+}

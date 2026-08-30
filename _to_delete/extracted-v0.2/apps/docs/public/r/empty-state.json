@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "empty-state",
+  "type": "registry:ui",
+  "title": "empty state",
+  "description": "A doodle, a handwritten note, and an arrow at the one fixing action.",
+  "dependencies": [
+    "@scribbleui/engine"
+  ],
+  "registryDependencies": [
+    "https://scribbleui.com/r/ink.json"
+  ],
+  "files": [
+    {
+      "path": "scribbleui/components/empty-state.tsx",
+      "type": "registry:ui",
+      "content": "'use client'\nimport { arrow, ink, line, type InkTimeline, type Stroke } from '@scribbleui/engine'\nimport * as React from 'react'\nimport { Ink, useSeed } from '../lib/ink'\nimport { cn } from '../lib/utils'\n\nexport interface ScribbleEmptyStateProps {\n  note?: string\n  /** the one action that fixes the emptiness */\n  action?: React.ReactNode\n  mood?: 'empty' | 'search' | 'error'\n  seed?: string\n  className?: string\n}\n\nfunction openBox(): Stroke[] {\n  return [\n    // box body\n    [{ x: 20, y: 26 }, { x: 44, y: 36 }, { x: 68, y: 26 }, { x: 68, y: 50 }, { x: 44, y: 60 }, { x: 20, y: 50 }, { x: 20, y: 26 }],\n    // open flaps\n    [{ x: 20, y: 26 }, { x: 44, y: 16 }, { x: 68, y: 26 }],\n    [{ x: 30, y: 12 }, { x: 44, y: 16 }, { x: 58, y: 10 }],\n    // inner fold\n    [{ x: 44, y: 36 }, { x: 44, y: 60 }],\n  ]\n}\nfunction magnifier(): Stroke[] {\n  const ring: Stroke = []\n  for (let i = 0; i <= 22; i++) {\n    const a = -0.4 + (i / 22) * Math.PI * 2.15\n    ring.push({ x: 40 + Math.cos(a) * 16, y: 32 + Math.sin(a) * 16 })\n  }\n  return [ring, [{ x: 52, y: 44 }, { x: 66, y: 58 }]]\n}\nfunction sadFace(): Stroke[] {\n  const head: Stroke = []\n  for (let i = 0; i <= 24; i++) {\n    const a = -0.5 + (i / 24) * Math.PI * 2.2\n    head.push({ x: 44 + Math.cos(a) * 22, y: 36 + Math.sin(a) * 22 })\n  }\n  return [head, line(36, 30, 37, 31), line(52, 30, 53, 31),\n    [{ x: 34, y: 48 }, { x: 44, y: 43 }, { x: 54, y: 48 }]]\n}\n\n/**\n * Emptiness with a doodle and a nudge: the doodle draws, the note writes,\n * and the arrow flicks at the one action that fixes it — in that order,\n * because the order tells the story.\n */\nexport function ScribbleEmptyState({ note = 'nothing here yet —', action, mood = 'empty', seed: seedProp, className }: ScribbleEmptyStateProps) {\n  const seed = useSeed(seedProp)\n  const [stage, setStage] = React.useState(0)\n\n  const doodleTl: InkTimeline = React.useMemo(() => {\n    const strokes = mood === 'search' ? magnifier() : mood === 'error' ? sadFace() : openBox()\n    return ink(strokes, { seed, roughness: 1, speed: 1.9, width: 1.9 })\n  }, [mood, seed])\n  const arrowTl: InkTimeline = React.useMemo(\n    () => ink(arrow({ x: 0, y: 0 }, { x: 20, y: 26 }, -0.3, 7), { seed: seed + ':a', roughness: 0.9, speed: 1.7 }),\n    [seed],\n  )\n\n  return (\n    <div className={cn('flex flex-col items-center gap-1 py-6 text-center', className)}>\n      <Ink timeline={doodleTl} color=\"var(--sui-ink)\" onDone={() => setStage(s => Math.max(s, 1))} />\n      <p className={cn('m-0 font-hand text-xl text-ink-soft transition-opacity duration-300', stage < 1 && 'opacity-0')}>\n        {note}\n      </p>\n      {action && (\n        <div className=\"relative mt-3\">\n          {stage >= 1 && (\n            <span className=\"absolute -left-7 -top-6\">\n              <Ink timeline={arrowTl} color=\"var(--sui-accent)\" onDone={() => setStage(2)} />\n            </span>\n          )}\n          {action}\n        </div>\n      )}\n    </div>\n  )\n}\n"
+    }
+  ]
+}

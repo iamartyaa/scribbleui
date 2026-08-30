@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "checkbox",
+  "type": "registry:ui",
+  "title": "checkbox",
+  "description": "The tick is a flick that escapes the box; unchecking takes the eraser to it.",
+  "dependencies": [
+    "@scribbleui/engine"
+  ],
+  "registryDependencies": [
+    "https://scribbleui.com/r/ink.json"
+  ],
+  "files": [
+    {
+      "path": "scribbleui/components/checkbox.tsx",
+      "type": "registry:ui",
+      "content": "'use client'\nimport { eraseScrub, ink, line, rect, tick, type InkTimeline } from '@scribbleui/engine'\nimport * as React from 'react'\nimport { Ink, useCalm, useSeed } from '../lib/ink'\nimport { cn } from '../lib/utils'\n\nexport interface ScribbleCheckboxProps {\n  checked?: boolean\n  defaultChecked?: boolean\n  indeterminate?: boolean\n  onCheckedChange?: (checked: boolean) => void\n  disabled?: boolean\n  label?: React.ReactNode\n  seed?: string\n  className?: string\n  id?: string\n}\n\n/**\n * The tick is a flick — fast, confident, escaping the box on purpose.\n * Unchecking doesn't reverse the flick; it takes the eraser to it.\n */\nexport function ScribbleCheckbox({\n  checked: checkedProp, defaultChecked, indeterminate, onCheckedChange, disabled, label, seed: seedProp, className, id,\n}: ScribbleCheckboxProps) {\n  const seed = useSeed(seedProp)\n  const calm = useCalm()\n  const [internal, setInternal] = React.useState(!!defaultChecked)\n  const checked = checkedProp ?? internal\n  const [erasing, setErasing] = React.useState(false)\n  const autoId = React.useId()\n  const boxId = id ?? autoId\n  const S = 20\n\n  const boxTl = React.useMemo(\n    () => ink(rect(S, S, seed), { seed, roughness: 1, speed: 2.4, overshoot: 3, width: 1.8 }),\n    [seed],\n  )\n  const tickTl = React.useMemo(\n    () => ink([tick(S * 0.92).map(p => ({ x: p.x + 3, y: p.y + 2 }))], { seed: seed + ':t', roughness: 0.9, speed: 1.7, width: 2.6, widthFromSpeed: 0.7 }),\n    [seed],\n  )\n  const dashTl = React.useMemo(\n    () => ink([line(4, S / 2, S - 4, S / 2)], { seed: seed + ':d', roughness: 1, speed: 1.2, width: 2.4 }),\n    [seed],\n  )\n  const scrubTl = React.useMemo(\n    () => ink([eraseScrub(S + 6, S * 0.7, 4).map(p => ({ x: p.x - 3, y: p.y + 3 }))], { seed: seed + ':e', roughness: 1.2, speed: 4, width: 7 }),\n    [seed],\n  )\n\n  const toggle = () => {\n    if (disabled) return\n    const next = !checked\n    if (!next && !calm) {\n      setErasing(true)\n      setTimeout(() => { setErasing(false); setInternal(next); onCheckedChange?.(next) }, 260)\n    } else {\n      setInternal(next)\n      onCheckedChange?.(next)\n    }\n  }\n\n  return (\n    <label className={cn('inline-flex cursor-pointer select-none items-center gap-2.5', disabled && 'cursor-not-allowed opacity-60', className)}>\n      <button\n        id={boxId}\n        role=\"checkbox\"\n        aria-checked={indeterminate ? 'mixed' : checked}\n        disabled={disabled}\n        onClick={toggle}\n        className=\"relative inline-block bg-transparent p-0\"\n        style={{ width: S + 8, height: S + 6, border: 'none', color: 'inherit' }}\n      >\n        <Ink timeline={boxTl} draw={false} color={disabled ? 'var(--sui-pencil)' : 'var(--sui-ink)'} className=\"absolute left-0 top-0\" overlay />\n        {indeterminate ? (\n          <Ink timeline={dashTl} color=\"var(--sui-accent)\" overlay className=\"absolute\" />\n        ) : (checked || erasing) ? (\n          <Ink\n            timeline={tickTl}\n            draw={!erasing}\n            color=\"var(--sui-accent)\"\n            overlay\n            className={cn('absolute transition-opacity', erasing && 'opacity-0 duration-300')}\n          />\n        ) : null}\n        {erasing && (\n          <Ink timeline={scrubTl} color=\"var(--sui-paper)\" overlay className=\"absolute\" style={{ opacity: 0.9 }} rate={1.4} />\n        )}\n      </button>\n      {label && <span className=\"font-body text-sm\">{label}</span>}\n    </label>\n  )\n}\n"
+    }
+  ]
+}

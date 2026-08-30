@@ -1,0 +1,9 @@
+{
+  "name": "scribbleui",
+  "version": "0.1.0",
+  "description": "CLI for Scribble UI — copy hand-drawn components into your project, shadcn style.",
+  "type": "module",
+  "bin": { "scribbleui": "./index.mjs" },
+  "license": "MIT",
+  "engines": { "node": ">=18" }
+}

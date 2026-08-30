@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "modal",
+  "type": "registry:ui",
+  "title": "modal",
+  "description": "A fresh sheet over your work; the page behind turns to pencil.",
+  "dependencies": [
+    "@scribbleui/engine",
+    "motion"
+  ],
+  "registryDependencies": [
+    "https://scribbleui.com/r/ink.json"
+  ],
+  "files": [
+    {
+      "path": "scribbleui/components/modal.tsx",
+      "type": "registry:ui",
+      "content": "'use client'\nimport { cross, ink, rect, type InkTimeline } from '@scribbleui/engine'\nimport { AnimatePresence, motion } from 'motion/react'\nimport * as React from 'react'\nimport { createPortal } from 'react-dom'\nimport { Ink, useSeed, vary } from '../lib/ink-extra'\nimport { cn } from '../lib/utils'\n\nexport interface ScribbleModalProps {\n  open: boolean\n  onOpenChange: (open: boolean) => void\n  title?: React.ReactNode\n  children: React.ReactNode\n  seed?: string\n  className?: string\n}\n\n/**\n * A fresh sheet placed over your work. The page behind turns to pencil\n * (grayscale, faded — a draft of itself); the modal is the only ink on the\n * desk. Closing crumples it away, and the ✗ is drawn in red.\n */\nexport function ScribbleModal({ open, onOpenChange, title, children, seed: seedProp, className }: ScribbleModalProps) {\n  const seed = useSeed(seedProp)\n  const rot = vary(seed, -1.2, 1.2)\n  const [size, setSize] = React.useState<{ w: number; h: number } | null>(null)\n  const sheetRef = React.useRef<HTMLDivElement>(null)\n\n  React.useEffect(() => {\n    if (!open) return\n    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') onOpenChange(false) }\n    window.addEventListener('keydown', esc)\n    return () => window.removeEventListener('keydown', esc)\n  }, [open, onOpenChange])\n\n  React.useLayoutEffect(() => {\n    if (open && sheetRef.current) {\n      setSize({ w: sheetRef.current.offsetWidth, h: sheetRef.current.offsetHeight })\n    }\n  }, [open])\n\n  const borderTl: InkTimeline | null = React.useMemo(\n    () => size ? ink(rect(size.w - 2, size.h - 2, seed).map(s => s.map(p => ({ x: p.x + 1, y: p.y + 1 }))), { seed, roughness: 0.9, speed: 3.6, overshoot: 2, width: 2 }) : null,\n    [size, seed],\n  )\n  const xTl: InkTimeline = React.useMemo(\n    () => ink(cross(14), { seed: seed + ':x', roughness: 1, speed: 2.2, width: 2.2 }),\n    [seed],\n  )\n\n  if (typeof document === 'undefined') return null\n  return createPortal(\n    <AnimatePresence>\n      {open && (\n        <motion.div\n          className=\"fixed inset-0 z-50 flex items-center justify-center p-6\"\n          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}\n          style={{ background: 'color-mix(in srgb, var(--sui-paper) 55%, transparent)', backdropFilter: 'grayscale(0.85) contrast(0.92)' }}\n          onPointerDown={e => { if (e.target === e.currentTarget) onOpenChange(false) }}\n        >\n          <motion.div\n            ref={sheetRef}\n            role=\"dialog\"\n            aria-modal=\"true\"\n            initial={{ y: -40, rotate: rot * 4, opacity: 0 }}\n            animate={{ y: 0, rotate: rot, opacity: 1 }}\n            exit={{ scale: 0.6, rotate: rot * 6, opacity: 0, transition: { duration: 0.22 } }}\n            transition={{ type: 'spring', stiffness: 380, damping: 26 }}\n            className={cn('relative w-full max-w-md bg-card p-6 shadow-[6px_8px_0_var(--sui-shadow)]', className)}\n          >\n            {borderTl && <Ink overlay pad={8} timeline={borderTl} color=\"var(--sui-ink)\" rate={2.2} className=\"absolute\" />}\n            <button\n              aria-label=\"close\"\n              onClick={() => onOpenChange(false)}\n              className=\"absolute right-3 top-3 cursor-pointer bg-transparent p-1\"\n              style={{ border: 'none' }}\n            >\n              <Ink timeline={xTl} color=\"var(--sui-danger)\" rate={1.6} />\n            </button>\n            {title && <h2 className=\"mb-2 pr-8 font-display text-xl font-bold\">{title}</h2>}\n            <div className=\"font-body text-sm text-ink-soft\">{children}</div>\n          </motion.div>\n        </motion.div>\n      )}\n    </AnimatePresence>,\n    document.body,\n  )\n}\n"
+    }
+  ]
+}

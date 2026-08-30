@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "avatar",
+  "type": "registry:ui",
+  "title": "avatar",
+  "description": "A double-drawn locket frame; fallback initials are handwritten.",
+  "dependencies": [
+    "@scribbleui/engine"
+  ],
+  "registryDependencies": [
+    "https://scribbleui.com/r/ink.json"
+  ],
+  "files": [
+    {
+      "path": "scribbleui/components/avatar.tsx",
+      "type": "registry:ui",
+      "content": "'use client'\nimport { ellipse, ink, type InkTimeline } from '@scribbleui/engine'\nimport * as React from 'react'\nimport { Ink, useSeed, vary } from '../lib/ink-extra'\nimport { cn } from '../lib/utils'\n\nexport interface ScribbleAvatarProps {\n  src?: string\n  alt?: string\n  /** fallback initials, handwritten */\n  initials?: string\n  size?: number\n  presence?: 'online' | 'away' | 'none'\n  seed?: string\n  className?: string\n}\n\n/**\n * A portrait in a locket frame: the double-drawn circle means \"framed with\n * care\", and fallback initials are handwritten, never typeset.\n */\nexport function ScribbleAvatar({ src, alt = '', initials, size = 48, presence = 'none', seed: seedProp, className }: ScribbleAvatarProps) {\n  const seed = useSeed(seedProp)\n  const [err, setErr] = React.useState(false)\n  const r = size / 2\n\n  const frameTl: InkTimeline = React.useMemo(\n    () => ink([\n      ellipse(r, r, r - 1.5, r - 1.5, seed),\n      ellipse(r, r, r - 4, r - 4.5, seed + '2'),\n    ], { seed, roughness: 1, speed: 2.8, width: 1.7 }),\n    [r, seed],\n  )\n\n  const showImg = src && !err\n  return (\n    <span className={cn('relative inline-block', className)} style={{ width: size + 4, height: size + 4 }}>\n      <span className=\"absolute inset-0.5 overflow-hidden rounded-full\">\n        {showImg ? (\n          <img src={src} alt={alt} onError={() => setErr(true)} className=\"size-full rounded-full object-cover\" style={{ filter: 'saturate(0.85) contrast(0.96)' }} />\n        ) : (\n          <span className=\"flex size-full items-center justify-center rounded-full bg-paper-2 font-hand text-ink\" style={{ fontSize: size * 0.42, transform: `rotate(${vary(seed, -6, 6)}deg)` }}>\n            {initials ?? '?'}\n          </span>\n        )}\n      </span>\n      <Ink overlay timeline={frameTl} color=\"var(--sui-ink)\" className=\"absolute\" rate={1.8} />\n      {presence !== 'none' && (\n        <span\n          aria-label={presence}\n          className=\"absolute bottom-0 right-0 size-2.5 rounded-full\"\n          style={{ background: presence === 'online' ? 'var(--sui-accent)' : 'var(--sui-pencil)', boxShadow: '0 0 0 2px var(--sui-card)' }}\n        />\n      )}\n    </span>\n  )\n}\n"
+    }
+  ]
+}

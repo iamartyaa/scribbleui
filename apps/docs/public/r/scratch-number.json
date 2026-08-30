@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "scratch-number",
+  "type": "registry:ui",
+  "title": "scratch number",
+  "description": "Numbers corrected the human way: scratch out the old, write the new.",
+  "dependencies": [
+    "@scribbleui/engine",
+    "@scribbleui/text"
+  ],
+  "registryDependencies": [
+    "https://scribbleui.com/r/ink.json"
+  ],
+  "files": [
+    {
+      "path": "scribbleui/components/scratch-number.tsx",
+      "type": "registry:ui",
+      "content": "'use client'\nimport { ink, scratch, type InkTimeline } from '@scribbleui/engine'\nimport { hands, writeText } from '@scribbleui/text'\nimport * as React from 'react'\nimport { Ink, useCalm, useSeed } from '../lib/ink'\nimport { cn } from '../lib/utils'\n\nexport interface ScratchNumberProps extends React.HTMLAttributes<HTMLSpanElement> {\n  value: number\n  size?: number\n  seed?: string\n  format?: (n: number) => string\n}\n\n/**\n * A number corrected the way a human corrects one: the old value gets\n * scratched out and the new value is written fresh. No slot machines.\n */\nexport function ScratchNumber({ value, size = 34, seed: seedProp, format = String, className, ...rest }: ScratchNumberProps) {\n  const seed = useSeed(seedProp)\n  const calm = useCalm()\n  const [shown, setShown] = React.useState(value)\n  const [old, setOld] = React.useState<number | null>(null)\n  const [gen, setGen] = React.useState(0)\n\n  React.useEffect(() => {\n    if (value === shown) return\n    if (calm) { setShown(value); return }\n    setOld(shown)\n    const t = setTimeout(() => { setShown(value); setOld(null); setGen(g => g + 1) }, 420)\n    return () => clearTimeout(t)\n    // eslint-disable-next-line react-hooks/exhaustive-deps\n  }, [value, calm])\n\n  const text = format(old ?? shown)\n  const tl: InkTimeline = React.useMemo(\n    () => writeText(text, hands.print, { seed: `${seed}:${gen}:${text}`, size }),\n    [text, seed, size, gen],\n  )\n  const scratchTl: InkTimeline | null = React.useMemo(() => {\n    if (old === null) return null\n    const w = tl.strokes.length ? Math.max(...tl.strokes.flatMap(s => s.points.map(p => p.x))) : size\n    return ink(scratch(w, seed), { seed, roughness: 1.6, speed: 2.4 })\n  }, [old, tl, seed, size])\n\n  return (\n    <span className={cn('relative inline-block align-baseline tabular-nums', className)} {...rest}>\n      <span className=\"sr-only\">{format(value)}</span>\n      <Ink timeline={tl} draw pad={5} />\n      {scratchTl && (\n        <Ink\n          overlay\n          timeline={scratchTl}\n          color=\"var(--sui-danger)\"\n          className=\"absolute\"\n          style={{ top: '38%' }}\n        />\n      )}\n    </span>\n  )\n}\n"
+    }
+  ]
+}

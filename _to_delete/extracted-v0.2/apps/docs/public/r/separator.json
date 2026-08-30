@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "separator",
+  "type": "registry:ui",
+  "title": "separator",
+  "description": "A scribe's flourish between thoughts.",
+  "dependencies": [
+    "@scribbleui/engine"
+  ],
+  "registryDependencies": [
+    "https://scribbleui.com/r/ink.json"
+  ],
+  "files": [
+    {
+      "path": "scribbleui/components/separator.tsx",
+      "type": "registry:ui",
+      "content": "'use client'\nimport { ink, zigzag, type InkTimeline, type Stroke } from '@scribbleui/engine'\nimport * as React from 'react'\nimport { Ink, useSeed } from '../lib/ink'\nimport { cn } from '../lib/utils'\n\nexport interface ScribbleSeparatorProps {\n  variant?: 'squiggle' | 'dots' | 'wave'\n  label?: string\n  seed?: string\n  className?: string\n}\n\n/**\n * A scribe's flourish between thoughts. Draws once when scrolled into view,\n * with a confident end-flick — never loops.\n */\nexport function ScribbleSeparator({ variant = 'squiggle', label, seed: seedProp, className }: ScribbleSeparatorProps) {\n  const seed = useSeed(seedProp)\n  const [armed, setArmed] = React.useState(false)\n  const ref = React.useRef<HTMLDivElement>(null)\n\n  React.useEffect(() => {\n    const el = ref.current\n    if (!el || typeof IntersectionObserver === 'undefined') { setArmed(true); return }\n    const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { setArmed(true); io.disconnect() } }, { threshold: 0.6 })\n    io.observe(el)\n    return () => io.disconnect()\n  }, [])\n\n  const tl: InkTimeline = React.useMemo(() => {\n    const W = 120\n    let strokes: Stroke[]\n    if (variant === 'dots') {\n      strokes = [0, 1, 2].map(i => [{ x: W / 2 - 20 + i * 20, y: 4 }, { x: W / 2 - 18 + i * 20, y: 5 }])\n    } else if (variant === 'wave') {\n      const pts = []\n      for (let x = 0; x <= W; x += 4) pts.push({ x, y: 5 + Math.sin(x / 9) * 4 })\n      strokes = [pts]\n    } else {\n      strokes = [zigzag(W, 8, 7).map(p => ({ x: p.x, y: p.y + 1 }))]\n    }\n    return ink(strokes, { seed, roughness: 0.9, speed: 2.2, width: 1.8, flightBase: 30 })\n  }, [variant, seed])\n\n  return (\n    <div ref={ref} role=\"separator\" className={cn('my-6 flex items-center justify-center gap-3', className)}>\n      <Ink timeline={tl} draw={armed} color=\"var(--sui-pencil)\" />\n      {label && <span className=\"font-hand text-lg text-pencil\">{label}</span>}\n      {label && <Ink timeline={tl} draw={armed} color=\"var(--sui-pencil)\" />}\n    </div>\n  )\n}\n"
+    }
+  ]
+}

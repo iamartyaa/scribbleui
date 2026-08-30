@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "types": ["vite/client"],
+    "paths": {
+      "@/*": ["../../packages/ui/src/*"],
+      "@scribbleui/engine": ["../../packages/engine/src/index.ts"],
+      "@scribbleui/text": ["../../packages/text/src/index.ts"]
+    }
+  },
+  "include": ["src", "../../packages/ui/src"]
+}

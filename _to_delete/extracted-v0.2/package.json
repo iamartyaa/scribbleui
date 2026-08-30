@@ -1,0 +1,16 @@
+{
+  "name": "scribbleui-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": ["packages/*", "apps/*"],
+  "scripts": {
+    "test": "npm -w @scribbleui/engine run test && npm -w @scribbleui/text run test",
+    "build": "npm -w @scribbleui/engine run build && npm -w @scribbleui/text run build && npm -w docs run build",
+    "dev": "npm -w docs run dev",
+    "registry": "node scripts/build-registry.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}

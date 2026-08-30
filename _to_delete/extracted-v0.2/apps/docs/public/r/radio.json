@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "radio",
+  "type": "registry:ui",
+  "title": "radio",
+  "description": "The pen circles the chosen option, exam-paper style.",
+  "dependencies": [
+    "@scribbleui/engine"
+  ],
+  "registryDependencies": [
+    "https://scribbleui.com/r/ink.json"
+  ],
+  "files": [
+    {
+      "path": "scribbleui/components/radio.tsx",
+      "type": "registry:ui",
+      "content": "'use client'\nimport { ellipse, ink, type InkTimeline } from '@scribbleui/engine'\nimport * as React from 'react'\nimport { Ink, useSeed } from '../lib/ink'\nimport { cn } from '../lib/utils'\n\nexport interface RadioOption { value: string; label: React.ReactNode; disabled?: boolean }\n\nexport interface ScribbleRadioGroupProps {\n  options: RadioOption[]\n  value?: string\n  defaultValue?: string\n  onValueChange?: (value: string) => void\n  name?: string\n  seed?: string\n  className?: string\n  'aria-label'?: string\n}\n\n/**\n * Circle your answer. No dot-in-ring — the pen circles the chosen option's\n * label, and the previous circle fades like erased pencil.\n */\nexport function ScribbleRadioGroup({\n  options, value: valueProp, defaultValue, onValueChange, seed: seedProp, className, ...rest\n}: ScribbleRadioGroupProps) {\n  const seed = useSeed(seedProp)\n  const [internal, setInternal] = React.useState(defaultValue ?? '')\n  const value = valueProp ?? internal\n  const [gen, setGen] = React.useState(0)\n  const refs = React.useRef(new Map<string, HTMLButtonElement>())\n  const [circle, setCircle] = React.useState<{ tl: InkTimeline; x: number; y: number } | null>(null)\n  const [fading, setFading] = React.useState<{ tl: InkTimeline; x: number; y: number } | null>(null)\n  const hostRef = React.useRef<HTMLDivElement>(null)\n\n  const pick = (v: string) => {\n    if (valueProp === undefined) setInternal(v)\n    onValueChange?.(v)\n    setGen(g => g + 1)\n  }\n\n  React.useLayoutEffect(() => {\n    const host = hostRef.current\n    const el = value ? refs.current.get(value) : null\n    if (!host || !el) { setCircle(null); return }\n    const hb = host.getBoundingClientRect()\n    const r = el.getBoundingClientRect()\n    const cx = r.left - hb.left + r.width / 2\n    const cy = r.top - hb.top + r.height / 2\n    const tl = ink(\n      [ellipse(0, 0, r.width / 2 + r.height * 0.32, r.height * 0.78, `${seed}:${value}:${gen}`)],\n      { seed: `${seed}:${value}:${gen}`, roughness: 1, speed: 1.9, width: 2 },\n    )\n    setCircle(prev => {\n      if (prev) { setFading(prev); setTimeout(() => setFading(null), 380) }\n      return { tl, x: cx, y: cy }\n    })\n    // eslint-disable-next-line react-hooks/exhaustive-deps\n  }, [value, gen, seed])\n\n  return (\n    <div ref={hostRef} role=\"radiogroup\" className={cn('relative inline-flex flex-col items-start gap-1.5', className)} {...rest}>\n      {options.map(o => (\n        <button\n          key={o.value}\n          ref={el => { if (el) refs.current.set(o.value, el) }}\n          role=\"radio\"\n          aria-checked={value === o.value}\n          disabled={o.disabled}\n          onClick={() => pick(o.value)}\n          className={cn(\n            'relative z-10 bg-transparent px-3 py-0.5 font-body text-sm',\n            o.disabled ? 'cursor-not-allowed text-pencil' : 'cursor-pointer',\n            value === o.value ? 'text-ink' : 'text-ink-soft hover:text-ink',\n          )}\n          style={{ border: 'none' }}\n        >\n          {o.label}\n        </button>\n      ))}\n      {fading && (\n        <span className=\"pointer-events-none absolute opacity-0 transition-opacity duration-300\" style={{ left: fading.x, top: fading.y }}>\n          <Ink overlay timeline={fading.tl} draw={false} color=\"var(--sui-pencil)\" />\n        </span>\n      )}\n      {circle && (\n        <span className=\"pointer-events-none absolute\" style={{ left: circle.x, top: circle.y }}>\n          <Ink overlay timeline={circle.tl} color=\"var(--sui-accent)\" />\n        </span>\n      )}\n    </div>\n  )\n}\n"
+    }
+  ]
+}

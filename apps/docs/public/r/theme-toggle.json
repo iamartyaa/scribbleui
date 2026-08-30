@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "theme-toggle",
+  "type": "registry:ui",
+  "title": "theme toggle",
+  "description": "The sun is scribbled out and the moon drawn fresh.",
+  "dependencies": [
+    "@scribbleui/engine"
+  ],
+  "registryDependencies": [
+    "https://scribbleui.com/r/ink.json"
+  ],
+  "files": [
+    {
+      "path": "scribbleui/components/theme-toggle.tsx",
+      "type": "registry:ui",
+      "content": "'use client'\nimport { crescent, doodleLoop, ellipse, ink, line, twinkle, type InkTimeline, type Stroke } from '@scribbleui/engine'\nimport * as React from 'react'\nimport { Ink, useCalm, useSeed } from '../lib/ink'\nimport { cn } from '../lib/utils'\n\nexport interface ScribbleThemeToggleProps {\n  /** controlled theme; otherwise reads/writes data-theme on <html> */\n  theme?: 'light' | 'dark'\n  onThemeChange?: (t: 'light' | 'dark') => void\n  seed?: string\n  className?: string\n}\n\nfunction sunStrokes(): Stroke[] {\n  const s: Stroke[] = [ellipse(16, 16, 8, 8, 'sun')]\n  for (let i = 0; i < 8; i++) {\n    const a = (i / 8) * Math.PI * 2\n    s.push(line(16 + Math.cos(a) * 11, 16 + Math.sin(a) * 11, 16 + Math.cos(a) * 15, 16 + Math.sin(a) * 15))\n  }\n  return s\n}\nfunction moonStrokes(): Stroke[] {\n  return [\n    ...crescent(14, 18, 10),\n    ...twinkle(28, 8, 3),\n    ...twinkle(31, 20, 2.2),\n    ...twinkle(24, 28, 1.8),\n  ]\n}\n\n/**\n * Day isn't toggled off — it's scribbled out, and night is drawn fresh.\n * 300ms of furious pen over the sun, then the moon's arc in one stroke.\n */\nexport function ScribbleThemeToggle({ theme: themeProp, onThemeChange, seed: seedProp, className }: ScribbleThemeToggleProps) {\n  const seed = useSeed(seedProp)\n  const calm = useCalm()\n  const [internal, setInternal] = React.useState<'light' | 'dark'>(() =>\n    typeof document !== 'undefined' && document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light')\n  const theme = themeProp ?? internal\n  const [scribbling, setScribbling] = React.useState(false)\n\n  const iconTl: InkTimeline = React.useMemo(\n    () => ink(theme === 'light' ? sunStrokes() : moonStrokes(), { seed: seed + theme, roughness: 0.8, speed: 2.4, width: 1.8, flightBase: 24 }),\n    [theme, seed],\n  )\n  const scribbleTl: InkTimeline = React.useMemo(\n    () => ink([doodleLoop(30, 30, 3, seed).map(p => ({ x: p.x + 1, y: p.y + 1 }))], { seed: seed + ':scr', roughness: 1.4, speed: 3.2, width: 2.4 }),\n    [seed],\n  )\n\n  const flip = () => {\n    const next = theme === 'light' ? 'dark' : 'light'\n    const commit = () => {\n      if (themeProp === undefined) {\n        setInternal(next)\n        document.documentElement.dataset.theme = next\n      }\n      onThemeChange?.(next)\n      setScribbling(false)\n    }\n    if (calm) { commit(); return }\n    setScribbling(true)\n    setTimeout(commit, 330)\n  }\n\n  return (\n    <button\n      aria-label={theme === 'light' ? 'switch to night' : 'switch to day'}\n      onClick={flip}\n      className={cn('relative inline-block cursor-pointer bg-transparent p-1', className)}\n      style={{ border: 'none', width: 40, height: 40, color: 'var(--sui-ink)' }}\n    >\n      <Ink timeline={iconTl} className=\"absolute left-1 top-1\" overlay color={theme === 'light' ? 'var(--sui-ink)' : 'var(--sui-accent)'} />\n      {scribbling && (\n        <Ink overlay timeline={scribbleTl} color=\"var(--sui-danger)\" rate={1.6} className=\"absolute left-1 top-1\" />\n      )}\n    </button>\n  )\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "popover",
+  "type": "registry:ui",
+  "title": "popover",
+  "description": "A sticky note slapped on with tape at a seeded angle.",
+  "dependencies": [
+    "@scribbleui/engine",
+    "motion"
+  ],
+  "registryDependencies": [
+    "https://scribbleui.com/r/ink.json"
+  ],
+  "files": [
+    {
+      "path": "scribbleui/components/popover.tsx",
+      "type": "registry:ui",
+      "content": "'use client'\nimport { ink, rect, type InkTimeline } from '@scribbleui/engine'\nimport { motion, AnimatePresence } from 'motion/react'\nimport * as React from 'react'\nimport { Ink, useSeed, vary } from '../lib/ink-extra'\nimport { cn } from '../lib/utils'\n\nexport interface ScribblePopoverProps {\n  trigger: React.ReactNode\n  children: React.ReactNode\n  seed?: string\n  className?: string\n}\n\n/**\n * A sticky note slapped on with tape — it lands with a squash-settle at a\n * seeded 1–3° angle (humans never tape straight), and peels off by a corner.\n */\nexport function ScribblePopover({ trigger, children, seed: seedProp, className }: ScribblePopoverProps) {\n  const seed = useSeed(seedProp)\n  const rot = vary(seed, -3, 3)\n  const tapeRot = vary(seed + 't', -6, 6)\n  const [open, setOpen] = React.useState(false)\n  const [size, setSize] = React.useState<{ w: number; h: number } | null>(null)\n  const panelRef = React.useRef<HTMLDivElement>(null)\n  const hostRef = React.useRef<HTMLDivElement>(null)\n\n  React.useEffect(() => {\n    if (!open) return\n    const close = (e: PointerEvent) => { if (!hostRef.current?.contains(e.target as Node)) setOpen(false) }\n    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }\n    window.addEventListener('pointerdown', close)\n    window.addEventListener('keydown', esc)\n    return () => { window.removeEventListener('pointerdown', close); window.removeEventListener('keydown', esc) }\n  }, [open])\n\n  React.useLayoutEffect(() => {\n    if (open && panelRef.current) {\n      // offsetWidth/Height ignore the entry animation's scale transform\n      setSize({ w: panelRef.current.offsetWidth, h: panelRef.current.offsetHeight })\n    }\n  }, [open])\n\n  const borderTl: InkTimeline | null = React.useMemo(\n    () => size ? ink(rect(size.w, size.h, seed), { seed, roughness: 1.1, speed: 3.2, width: 1.6 }) : null,\n    [size, seed],\n  )\n\n  return (\n    <div ref={hostRef} className=\"relative inline-block\">\n      <span onClick={() => setOpen(o => !o)}>{trigger}</span>\n      <AnimatePresence>\n        {open && (\n          <motion.div\n            ref={panelRef}\n            initial={{ opacity: 0, scale: 0.7, rotate: rot * 3, y: -14, x: '-50%' }}\n            animate={{ opacity: 1, scale: 1, rotate: rot, y: 0, x: '-50%' }}\n            exit={{ opacity: 0, rotate: rot + 8, y: 10, x: '-50%', transition: { duration: 0.18 } }}\n            transition={{ type: 'spring', stiffness: 480, damping: 22 }}\n            className={cn('absolute left-1/2 top-full z-40 mt-3 w-56 bg-card p-4 shadow-[3px_5px_0_var(--sui-shadow)]', className)}\n            style={{ transformOrigin: 'top center' }}\n          >\n            <span\n              aria-hidden\n              className=\"absolute -top-2 left-1/2 h-4 w-12 -translate-x-1/2\"\n              style={{ background: 'var(--sui-hl)', opacity: 0.5, transform: `translateX(-50%) rotate(${tapeRot}deg)` }}\n            />\n            {borderTl && <Ink overlay timeline={borderTl} color=\"var(--sui-ink)\" rate={2.6} className=\"absolute\" />}\n            <div className=\"relative font-body text-sm\">{children}</div>\n          </motion.div>\n        )}\n      </AnimatePresence>\n    </div>\n  )\n}\n"
+    }
+  ]
+}

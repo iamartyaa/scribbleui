@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "breadcrumb",
+  "type": "registry:ui",
+  "title": "breadcrumb",
+  "description": "Your path as a dashed treasure-map route.",
+  "dependencies": [
+    "@scribbleui/engine"
+  ],
+  "registryDependencies": [
+    "https://scribbleui.com/r/ink.json"
+  ],
+  "files": [
+    {
+      "path": "scribbleui/components/breadcrumb.tsx",
+      "type": "registry:ui",
+      "content": "'use client'\nimport { bowedLine, ink, type InkTimeline } from '@scribbleui/engine'\nimport * as React from 'react'\nimport { Ink, useSeed } from '../lib/ink'\nimport { cn } from '../lib/utils'\n\nexport interface CrumbItem { label: string; href?: string }\n\nexport interface ScribbleBreadcrumbProps {\n  items: CrumbItem[]\n  seed?: string\n  className?: string\n}\n\n/**\n * Your path is a treasure-map route: dashed segments between stops, and the\n * page you're standing on gets the heaviest ink.\n */\nexport function ScribbleBreadcrumb({ items, seed: seedProp, className }: ScribbleBreadcrumbProps) {\n  const seed = useSeed(seedProp)\n  const dashTl: InkTimeline = React.useMemo(() => {\n    // one wavy dash-run used between every pair of stops\n    const run = bowedLine(0, 6, 34, 4, 0.12, seed)\n    const dashes = []\n    for (let i = 0; i < run.length - 1; i += 3) dashes.push([run[i], run[i + 1]])\n    return ink(dashes, { seed, roughness: 0.8, speed: 2.4, width: 1.6, flightBase: 20 })\n  }, [seed])\n\n  return (\n    <nav aria-label=\"breadcrumb\" className={cn('inline-block', className)}>\n      <ol className=\"flex flex-wrap items-center gap-1.5 p-0\" style={{ listStyle: 'none', margin: 0 }}>\n        {items.map((it, i) => {\n          const last = i === items.length - 1\n          return (\n            <li key={i} className=\"flex items-center gap-1.5\">\n              <span className=\"flex items-center gap-1\">\n                <span\n                  className=\"inline-block size-2 rounded-full\"\n                  style={{ background: last ? 'var(--sui-accent)' : 'var(--sui-pencil)', transform: `scale(${last ? 1.25 : 1})` }}\n                />\n                {it.href && !last ? (\n                  <a href={it.href} className=\"font-hand text-lg text-ink-soft no-underline hover:text-ink\">{it.label}</a>\n                ) : (\n                  <span aria-current={last ? 'page' : undefined} className={cn('font-hand text-lg', last ? 'font-bold text-accent' : 'text-ink-soft')}>{it.label}</span>\n                )}\n              </span>\n              {!last && <Ink timeline={dashTl} color=\"var(--sui-pencil)\" className=\"mx-0.5 shrink-0\" rate={2.5} />}\n            </li>\n          )\n        })}\n      </ol>\n    </nav>\n  )\n}\n"
+    }
+  ]
+}

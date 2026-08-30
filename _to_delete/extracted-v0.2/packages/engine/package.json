@@ -1,0 +1,15 @@
+{
+  "name": "@scribbleui/engine",
+  "version": "0.1.0",
+  "description": "Headless hand-drawn ink engine: seeded roughening, human velocity model, timed ink timelines. Zero dependencies.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "files": ["dist"],
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  }
+}

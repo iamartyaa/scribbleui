@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "tooltip",
+  "type": "registry:ui",
+  "title": "tooltip",
+  "description": "A whispered jot with a drawn leader line; erases tail-first on leave.",
+  "dependencies": [
+    "@scribbleui/engine"
+  ],
+  "registryDependencies": [
+    "https://scribbleui.com/r/ink.json"
+  ],
+  "files": [
+    {
+      "path": "scribbleui/components/tooltip.tsx",
+      "type": "registry:ui",
+      "content": "'use client'\nimport { ink, sampleQuad, type InkTimeline } from '@scribbleui/engine'\nimport * as React from 'react'\nimport { Ink, useSeed, vary } from '../lib/ink-extra'\nimport { cn } from '../lib/utils'\n\nexport interface ScribbleTooltipProps {\n  content: React.ReactNode\n  children: React.ReactElement\n  side?: 'top' | 'bottom'\n  delay?: number\n  seed?: string\n}\n\n/**\n * A whispered jot with a leader line: the line draws, the note scribbles in,\n * and on leave the whole thing erases tail-first. Never faded — always drawn.\n */\nexport function ScribbleTooltip({ content, children, side = 'top', delay = 250, seed: seedProp }: ScribbleTooltipProps) {\n  const seed = useSeed(seedProp)\n  const rot = vary(seed, -2.5, 2.5)\n  const [state, setState] = React.useState<'hidden' | 'shown' | 'erasing'>('hidden')\n  const timer = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined)\n  const id = React.useId()\n\n  const leadTl: InkTimeline = React.useMemo(() => {\n    const dy = side === 'top' ? -1 : 1\n    return ink(\n      [sampleQuad({ x: 0, y: 0 }, { x: 10, y: 16 * dy }, { x: 22, y: 26 * dy }, 10)],\n      { seed, roughness: 0.8, speed: 1.6, width: 1.4 },\n    )\n  }, [seed, side])\n\n  const show = () => { clearTimeout(timer.current); timer.current = setTimeout(() => setState('shown'), delay) }\n  const hide = () => {\n    clearTimeout(timer.current)\n    setState(s => s === 'shown' ? 'erasing' : 'hidden')\n    timer.current = setTimeout(() => setState('hidden'), 300)\n  }\n\n  return (\n    <span\n      className=\"relative inline-block\"\n      onPointerEnter={show}\n      onPointerLeave={hide}\n      onFocus={show}\n      onBlur={hide}\n    >\n      {React.cloneElement(children as React.ReactElement<Record<string, unknown>>, { 'aria-describedby': id })}\n      {state !== 'hidden' && (\n        <span\n          role=\"tooltip\"\n          id={id}\n          className={cn(\n            'absolute left-[60%] z-40 w-max max-w-52 font-hand text-base leading-tight text-accent transition-opacity duration-200',\n            side === 'top' ? 'bottom-full mb-6' : 'top-full mt-6',\n            state === 'erasing' && 'opacity-0',\n          )}\n          style={{ transform: `rotate(${rot}deg)` }}\n        >\n          {content}\n        </span>\n      )}\n      {state !== 'hidden' && (\n        <span className={cn('pointer-events-none absolute left-[55%]', side === 'top' ? 'top-0' : 'bottom-0')}>\n          <Ink overlay timeline={leadTl} erase={state === 'erasing'} color=\"var(--sui-accent)\" />\n        </span>\n      )}\n    </span>\n  )\n}\n"
+    }
+  ]
+}

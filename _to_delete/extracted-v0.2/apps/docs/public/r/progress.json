@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "progress",
+  "type": "registry:ui",
+  "title": "progress",
+  "description": "Ink advancing toward a waiting checkbox; at 100% the tick flicks.",
+  "dependencies": [
+    "@scribbleui/engine"
+  ],
+  "registryDependencies": [
+    "https://scribbleui.com/r/ink.json"
+  ],
+  "files": [
+    {
+      "path": "scribbleui/components/progress.tsx",
+      "type": "registry:ui",
+      "content": "'use client'\nimport { bowedLine, ink, rect, tick, type InkTimeline } from '@scribbleui/engine'\nimport * as React from 'react'\nimport { Ink, useSeed } from '../lib/ink'\nimport { cn } from '../lib/utils'\n\nexport interface ScribbleProgressProps {\n  /** 0..100 */\n  value: number\n  label?: string\n  seed?: string\n  className?: string\n}\n\n/**\n * The destination is drawn first: an empty checkbox waits at the end of a\n * pencil guide. Progress is ink advancing toward it — and when the line\n * arrives, the tick flicks. The payoff is the point.\n */\nexport function ScribbleProgress({ value, label, seed: seedProp, className }: ScribbleProgressProps) {\n  const seed = useSeed(seedProp)\n  const clamped = Math.max(0, Math.min(100, value))\n  const [w, setW] = React.useState(220)\n  const hostRef = React.useRef<HTMLDivElement>(null)\n  const BOX = 20\n  const trackW = w - BOX - 12\n\n  React.useLayoutEffect(() => {\n    const el = hostRef.current\n    if (!el) return\n    const m = () => setW(p => Math.abs(p - el.clientWidth) < 1 ? p : el.clientWidth)\n    m()\n    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(m) : null\n    ro?.observe(el)\n    return () => ro?.disconnect()\n  }, [])\n\n  const guideTl = React.useMemo(\n    () => ink([bowedLine(0, BOX / 2, trackW, BOX / 2, 0.015, seed)], { seed, roughness: 0.7, speed: 4, width: 1.2 }),\n    [trackW, seed],\n  )\n  const inkTl = React.useMemo(\n    () => ink([bowedLine(0, BOX / 2, trackW, BOX / 2, 0.02, seed + 'i')], { seed: seed + ':i', roughness: 0.9, speed: 4, width: 2.8 }),\n    [trackW, seed],\n  )\n  const boxTl = React.useMemo(\n    () => ink(rect(BOX, BOX, seed + 'b'), { seed: seed + ':b', roughness: 1, speed: 2.6, width: 1.7 }),\n    [seed],\n  )\n  const tickTl = React.useMemo(\n    () => ink([tick(BOX * 0.9).map(p => ({ x: p.x + 3, y: p.y + 2 }))], { seed: seed + ':t', roughness: 0.9, speed: 1.7, width: 2.5 }),\n    [seed],\n  )\n\n  return (\n    <div\n      ref={hostRef}\n      role=\"progressbar\"\n      aria-valuenow={Math.round(clamped)}\n      aria-valuemin={0}\n      aria-valuemax={100}\n      aria-label={label}\n      className={cn('relative inline-block w-60', className)}\n      style={{ height: BOX + 6 }}\n    >\n      <Ink overlay timeline={guideTl} draw={false} color=\"var(--sui-pencil)\" className=\"absolute\" style={{ opacity: 0.6 }} />\n      <Ink overlay timeline={inkTl} progress={clamped / 100} color=\"var(--sui-accent)\" className=\"absolute\" />\n      <span className=\"absolute\" style={{ left: trackW + 10, top: 0 }}>\n        <Ink overlay timeline={boxTl} draw={false} color=\"var(--sui-ink)\" />\n        {clamped >= 100 && <Ink overlay timeline={tickTl} color=\"var(--sui-accent)\" className=\"absolute\" />}\n      </span>\n      <span className=\"pointer-events-none absolute -top-5 font-hand text-base text-accent\" style={{ left: Math.max(0, (clamped / 100) * trackW - 12) }}>\n        {Math.round(clamped)}%\n      </span>\n    </div>\n  )\n}\n"
+    }
+  ]
+}

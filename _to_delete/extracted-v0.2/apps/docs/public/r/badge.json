@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "badge",
+  "type": "registry:ui",
+  "title": "badge",
+  "description": "Urgency measured in scribble loops around the count.",
+  "dependencies": [
+    "@scribbleui/engine"
+  ],
+  "registryDependencies": [
+    "https://scribbleui.com/r/ink.json"
+  ],
+  "files": [
+    {
+      "path": "scribbleui/components/badge.tsx",
+      "type": "registry:ui",
+      "content": "'use client'\nimport { ellipse, ink, type InkTimeline } from '@scribbleui/engine'\nimport * as React from 'react'\nimport { Ink, useSeed } from '../lib/ink'\nimport { cn } from '../lib/utils'\n\nexport interface ScribbleBadgeProps {\n  count?: number\n  /** show a plain dot instead of a count */\n  dot?: boolean\n  max?: number\n  children?: React.ReactNode\n  seed?: string\n  className?: string\n}\n\n/**\n * Urgency measured in scribble loops: each escalation adds another loop to\n * the circle. Three unread = calmly circled; twenty = furiously scribbled.\n */\nexport function ScribbleBadge({ count = 0, dot, max = 9, children, seed: seedProp, className }: ScribbleBadgeProps) {\n  const seed = useSeed(seedProp)\n  const [gen, setGen] = React.useState(0)\n  const prev = React.useRef(count)\n  React.useEffect(() => {\n    if (count !== prev.current) { prev.current = count; setGen(g => g + 1) }\n  }, [count])\n\n  const loops = count <= 0 ? 1 : Math.min(1 + Math.floor(Math.log2(Math.max(1, count / 2))), 4)\n  const label = count > max ? `${max}+` : String(count)\n\n  const ringTl: InkTimeline = React.useMemo(\n    () => ink(\n      [ellipse(0, 0, 10 + label.length * 3.2, 9.5, `${seed}:${gen}`, loops)],\n      { seed: `${seed}:${gen}`, roughness: 1 + loops * 0.16, speed: 2.6, width: 1.7 },\n    ),\n    [seed, gen, loops, label.length],\n  )\n\n  const show = dot || count > 0\n  return (\n    <span className={cn('relative inline-block', className)}>\n      {children}\n      {show && (\n        <span\n          className={cn('absolute -right-2 -top-2 flex items-center justify-center', gen > 0 && 'animate-[badge-shake_0.35s_ease]')}\n          role=\"status\"\n          aria-label={dot ? 'new' : `${label} new`}\n          key={gen}\n        >\n          {dot ? (\n            <span className=\"size-2 rounded-full\" style={{ background: 'var(--sui-danger)' }} />\n          ) : (\n            <>\n              <span className=\"relative z-10 px-1 font-hand text-sm font-bold leading-none text-danger\">{label}</span>\n              <span className=\"absolute left-1/2 top-1/2\">\n                <Ink overlay timeline={ringTl} color=\"var(--sui-danger)\" rate={1.8} />\n              </span>\n            </>\n          )}\n        </span>\n      )}\n    </span>\n  )\n}\n"
+    }
+  ]
+}

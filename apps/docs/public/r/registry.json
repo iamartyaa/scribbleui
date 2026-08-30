@@ -1,0 +1,247 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "scribbleui",
+  "homepage": "https://scribbleui.com",
+  "items": [
+    {
+      "name": "ink",
+      "type": "registry:lib",
+      "title": "Ink primitives",
+      "description": "The Scribble UI React primitives: InkProvider, the <Ink> renderer, and seed/motion hooks."
+    },
+    {
+      "name": "accordion",
+      "type": "registry:ui",
+      "title": "accordion",
+      "description": "A hand-drawn bracket spans exactly the revealed content."
+    },
+    {
+      "name": "annotate",
+      "type": "registry:ui",
+      "title": "annotate",
+      "description": "Underline, circle, strike, highlight, box, bracket — marks measured from live DOM rects."
+    },
+    {
+      "name": "arrow-art",
+      "type": "registry:ui",
+      "title": "arrow art",
+      "description": "Standalone hand-drawn arrows: straight, curve, loop, zigzag, double — angle, arc and head as knobs."
+    },
+    {
+      "name": "avatar",
+      "type": "registry:ui",
+      "title": "avatar",
+      "description": "A double-drawn locket frame; fallback initials are handwritten."
+    },
+    {
+      "name": "badge",
+      "type": "registry:ui",
+      "title": "badge",
+      "description": "Urgency measured in scribble loops around the count."
+    },
+    {
+      "name": "blockquote",
+      "type": "registry:ui",
+      "title": "blockquote",
+      "description": "A quote copied into a commonplace book."
+    },
+    {
+      "name": "breadcrumb",
+      "type": "registry:ui",
+      "title": "breadcrumb",
+      "description": "Your path as a dashed treasure-map route."
+    },
+    {
+      "name": "button",
+      "type": "registry:ui",
+      "title": "button",
+      "description": "Four strokes with overshot corners; pressing squishes the ink, releasing re-draws."
+    },
+    {
+      "name": "card",
+      "type": "registry:ui",
+      "title": "card",
+      "description": "A scrap pinned to the board with a drawn, hatched shadow."
+    },
+    {
+      "name": "checkbox",
+      "type": "registry:ui",
+      "title": "checkbox",
+      "description": "The tick is a flick that escapes the box; unchecking takes the eraser to it."
+    },
+    {
+      "name": "context-menu",
+      "type": "registry:ui",
+      "title": "context menu",
+      "description": "Options jotted at the cursor; a drawn arrow points at your intent."
+    },
+    {
+      "name": "dock",
+      "type": "registry:ui",
+      "title": "dock",
+      "description": "Sticker icons on a drawn shelf; hover circles one and peels it up."
+    },
+    {
+      "name": "drawer",
+      "type": "registry:ui",
+      "title": "drawer",
+      "description": "A folded flap of the page, unfolding along a dashed crease."
+    },
+    {
+      "name": "empty-state",
+      "type": "registry:ui",
+      "title": "empty state",
+      "description": "A doodle, a handwritten note, and an arrow at the one fixing action."
+    },
+    {
+      "name": "handwritten",
+      "type": "registry:ui",
+      "title": "handwritten",
+      "description": "Text that writes itself with real pen physics; the DOM text stays selectable."
+    },
+    {
+      "name": "input",
+      "type": "registry:ui",
+      "title": "input",
+      "description": "A ruled writing line instead of a box; errors get the teacher's red scribble."
+    },
+    {
+      "name": "kbd",
+      "type": "registry:ui",
+      "title": "kbd",
+      "description": "A sketched keycap that really depresses when its shortcut fires."
+    },
+    {
+      "name": "loader",
+      "type": "registry:ui",
+      "title": "loader",
+      "description": "The bored pen doodles while you wait; resolution becomes a ✓ or ✗."
+    },
+    {
+      "name": "margin-note",
+      "type": "registry:ui",
+      "title": "margin note",
+      "description": "Marginalia pinned to its anchor by a drawn leader line."
+    },
+    {
+      "name": "marquee",
+      "type": "registry:ui",
+      "title": "marquee",
+      "description": "Content on a paper tape pulled by hand — speed wobbles, hover drags."
+    },
+    {
+      "name": "modal",
+      "type": "registry:ui",
+      "title": "modal",
+      "description": "A fresh sheet over your work; the page behind turns to pencil."
+    },
+    {
+      "name": "popover",
+      "type": "registry:ui",
+      "title": "popover",
+      "description": "A sticky note slapped on with tape at a seeded angle."
+    },
+    {
+      "name": "progress",
+      "type": "registry:ui",
+      "title": "progress",
+      "description": "Ink advancing toward a waiting checkbox; at 100% the tick flicks."
+    },
+    {
+      "name": "radio",
+      "type": "registry:ui",
+      "title": "radio",
+      "description": "The pen circles the chosen option, exam-paper style."
+    },
+    {
+      "name": "scratch-number",
+      "type": "registry:ui",
+      "title": "scratch number",
+      "description": "Numbers corrected the human way: scratch out the old, write the new."
+    },
+    {
+      "name": "scribble-arrow",
+      "type": "registry:ui",
+      "title": "scribble arrow",
+      "description": "A hand-drawn arrow connecting two DOM nodes that re-routes when they move."
+    },
+    {
+      "name": "select",
+      "type": "registry:ui",
+      "title": "select",
+      "description": "Options on a dropped paper scrap; the pick gets circled."
+    },
+    {
+      "name": "separator",
+      "type": "registry:ui",
+      "title": "separator",
+      "description": "A scribe's flourish between thoughts."
+    },
+    {
+      "name": "sidebar",
+      "type": "registry:ui",
+      "title": "sidebar",
+      "description": "A jotted list with a margin arrow saying you-are-here."
+    },
+    {
+      "name": "skeleton",
+      "type": "registry:ui",
+      "title": "skeleton",
+      "description": "Loading as pencil roughs; content is inked over and the pencil erases."
+    },
+    {
+      "name": "slider",
+      "type": "registry:ui",
+      "title": "slider",
+      "description": "A pencil ruler you ink over — the drawn width follows your decision."
+    },
+    {
+      "name": "stickman",
+      "type": "registry:ui",
+      "title": "stickman",
+      "description": "A pencil-drawn stickman with five poses; wave, run and draw keep moving like a flipbook."
+    },
+    {
+      "name": "switch",
+      "type": "registry:ui",
+      "title": "switch",
+      "description": "A wet-ink knob that smears along the track; ON earns an underline."
+    },
+    {
+      "name": "table",
+      "type": "registry:ui",
+      "title": "table",
+      "description": "A ledger: ink header rule, pencil row rules, highlighter row hover."
+    },
+    {
+      "name": "tabs",
+      "type": "registry:ui",
+      "title": "tabs",
+      "description": "The active underline erases, flies, and re-draws — it never slides."
+    },
+    {
+      "name": "textarea",
+      "type": "registry:ui",
+      "title": "textarea",
+      "description": "A page that rules itself as you fill it."
+    },
+    {
+      "name": "theme-toggle",
+      "type": "registry:ui",
+      "title": "theme toggle",
+      "description": "The sun is scribbled out and the moon drawn fresh."
+    },
+    {
+      "name": "toast",
+      "type": "registry:ui",
+      "title": "toast",
+      "description": "Notes slid across the desk, stacking messily on purpose."
+    },
+    {
+      "name": "tooltip",
+      "type": "registry:ui",
+      "title": "tooltip",
+      "description": "A whispered jot with a drawn leader line; erases tail-first on leave."
+    }
+  ]
+}

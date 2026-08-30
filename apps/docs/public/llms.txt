@@ -1,0 +1,47 @@
+# Scribble UI
+
+> Hand-drawn React components where every stroke carries meaning. Real pen
+> physics (curvature-dependent velocity, pen-up flights, speed-dependent ink
+> width), seeded deterministic imperfection (SSR-safe), distributed as
+> copy-paste source via a shadcn-compatible registry.
+
+Stack: React 19 + TypeScript + Tailwind (any v4 setup) + a zero-dependency
+ink engine (@scribbleui/engine). Text components add @scribbleui/text
+(centerline .hand stroke fonts derived from the public-domain Hershey
+collection). A few overlay components use motion.
+
+## Install
+
+- `npx scribbleui add button` — or with the shadcn CLI:
+  `npx shadcn@latest add https://scribbleui.com/r/button.json`
+- Runtime deps land in your package.json; component source lands in your repo.
+- Add the ink tokens (CSS custom properties) via `npx scribbleui init`.
+
+Docs site: sidebar of all components; every component page has live preview,
+variants, a customize panel, usage/install tabs, a props table, and a
+"copy for AI" button that yields exactly this kind of markdown.
+
+## Principles
+
+1. Strokes mean something: the circle around a radio option IS the selection;
+   the scratch-out IS the number change. No decorative wobble.
+2. Pen physics, not path tricks: velocity follows a two-thirds-power-law
+   flavor; pens lift and fly between strokes; width comes from speed.
+3. Seeded imperfection: same seed, same ink — SSR, hydration and screenshot
+   tests agree. `seed` is a prop on everything.
+4. One signature move per component, 150–400ms, reduced-motion renders the
+   final drawn state instantly. Real text stays in the DOM; ink is aria-hidden.
+
+## Components (38)
+
+Ink & Text: handwritten, annotate, arrow-art, scribble-arrow, scratch-number, margin-note
+Forms: button, input, textarea, checkbox, radio, switch, slider, select
+Navigation: tabs, sidebar, breadcrumb, dock
+Overlays: tooltip, popover, modal, drawer, context-menu
+Feedback: toast, badge, loader, progress, skeleton
+Surfaces: card, accordion, table, separator, avatar, kbd, marquee
+Delight: theme-toggle, empty-state, stickman
+Surfaces also: blockquote
+
+Registry index: https://scribbleui.com/r/registry.json
+Each component: https://scribbleui.com/r/<name>.json

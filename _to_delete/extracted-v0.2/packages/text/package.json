@@ -1,0 +1,18 @@
+{
+  "name": "@scribbleui/text",
+  "version": "0.1.0",
+  "description": "Handwriting engine for Scribble UI: .hand centerline stroke fonts, layout, and a streaming writer.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "files": ["dist"],
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/copy-fonts.mjs",
+    "test": "vitest run",
+    "fonts": "node scripts/build-hand-fonts.mjs"
+  },
+  "dependencies": { "@scribbleui/engine": "*" },
+  "devDependencies": { "hersheytext": "^2.0.0" }
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "scribble-arrow",
+  "type": "registry:ui",
+  "title": "scribble arrow",
+  "description": "A hand-drawn arrow connecting two DOM nodes that re-routes when they move.",
+  "dependencies": [
+    "@scribbleui/engine"
+  ],
+  "registryDependencies": [
+    "https://scribbleui.com/r/ink.json"
+  ],
+  "files": [
+    {
+      "path": "scribbleui/components/scribble-arrow.tsx",
+      "type": "registry:ui",
+      "content": "'use client'\nimport { arrow, ink, type InkTimeline } from '@scribbleui/engine'\nimport * as React from 'react'\nimport { Ink, useSeed } from '../lib/ink'\nimport { cn } from '../lib/utils'\n\nexport interface ScribbleArrowProps extends React.HTMLAttributes<HTMLDivElement> {\n  /** elements to connect — refs to nodes inside the same positioned container */\n  fromRef: React.RefObject<HTMLElement | null>\n  toRef: React.RefObject<HTMLElement | null>\n  /** curve bend, -0.5..0.5 (sign flips the side) */\n  bulge?: number\n  color?: string\n  seed?: string\n  label?: string\n  show?: boolean\n}\n\n/**\n * \"Look here.\" A hand-drawn arrow between two DOM nodes that re-routes\n * itself when either one moves. Mount it inside a position:relative parent\n * that contains both endpoints.\n */\nexport function ScribbleArrow({\n  fromRef, toRef, bulge = 0.18, color, seed: seedProp, label, show = true, className, style, ...rest\n}: ScribbleArrowProps) {\n  const seed = useSeed(seedProp)\n  const hostRef = React.useRef<HTMLDivElement>(null)\n  const [tl, setTl] = React.useState<InkTimeline | null>(null)\n  const [mid, setMid] = React.useState<{ x: number; y: number } | null>(null)\n  const keyRef = React.useRef('')\n\n  const route = React.useCallback(() => {\n    const host = hostRef.current?.offsetParent as HTMLElement | null\n    const a = fromRef.current, b = toRef.current\n    if (!host || !a || !b) return\n    const hb = host.getBoundingClientRect()\n    const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect()\n    const ca = { x: ra.left - hb.left + ra.width / 2, y: ra.top - hb.top + ra.height / 2 }\n    const cb = { x: rb.left - hb.left + rb.width / 2, y: rb.top - hb.top + rb.height / 2 }\n    // start/end on the rect edges, not centers\n    const shrink = (from: typeof ca, to: typeof ca, r: DOMRect) => {\n      const dx = to.x - from.x, dy = to.y - from.y\n      const len = Math.hypot(dx, dy) || 1\n      const k = (Math.min(r.width, r.height) / 2 + 8) / len\n      return { x: from.x + dx * k, y: from.y + dy * k }\n    }\n    const p1 = shrink(ca, cb, ra)\n    const p2 = shrink(cb, ca, rb)\n    const key = JSON.stringify([p1.x | 0, p1.y | 0, p2.x | 0, p2.y | 0, bulge])\n    if (key === keyRef.current) return\n    keyRef.current = key\n    setTl(ink(arrow(p1, p2, bulge), { seed, roughness: 0.9, speed: 1.6 }))\n    setMid({ x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 })\n  }, [fromRef, toRef, bulge, seed])\n\n  React.useEffect(() => {\n    route()\n    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(route) : null\n    if (fromRef.current && ro) ro.observe(fromRef.current)\n    if (toRef.current && ro) ro.observe(toRef.current)\n    window.addEventListener('resize', route)\n    return () => { ro?.disconnect(); window.removeEventListener('resize', route) }\n  }, [route, fromRef, toRef])\n\n  return (\n    <div ref={hostRef} className={cn('pointer-events-none absolute inset-0', className)} style={style} {...rest}>\n      {tl && show && (\n        <Ink overlay timeline={tl} color={color ?? 'var(--sui-accent)'} />\n      )}\n      {label && mid && show && (\n        <span\n          className=\"absolute -translate-x-1/2 -translate-y-full font-hand text-lg\"\n          style={{ left: mid.x, top: mid.y - 6, color: color ?? 'var(--sui-accent)' }}\n        >\n          {label}\n        </span>\n      )}\n    </div>\n  )\n}\n"
+    }
+  ]
+}

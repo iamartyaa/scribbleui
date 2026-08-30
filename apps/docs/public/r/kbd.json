@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "kbd",
+  "type": "registry:ui",
+  "title": "kbd",
+  "description": "A sketched keycap that really depresses when its shortcut fires.",
+  "dependencies": [
+    "@scribbleui/engine"
+  ],
+  "registryDependencies": [
+    "https://scribbleui.com/r/ink.json"
+  ],
+  "files": [
+    {
+      "path": "scribbleui/components/kbd.tsx",
+      "type": "registry:ui",
+      "content": "'use client'\nimport { bowedLine, ink, rect, type InkTimeline } from '@scribbleui/engine'\nimport * as React from 'react'\nimport { Ink, useSeed } from '../lib/ink'\nimport { cn } from '../lib/utils'\n\nexport interface ScribbleKbdProps {\n  children: string\n  /** when this key combo fires for real, the sketched cap depresses */\n  listen?: boolean\n  seed?: string\n  className?: string\n}\n\n/**\n * A keycap sketched from life — and when its real shortcut fires, the cap\n * depresses onto its base line and pops back. Docs feel alive.\n */\nexport function ScribbleKbd({ children, listen, seed: seedProp, className }: ScribbleKbdProps) {\n  const seed = useSeed(seedProp + children)\n  const [pressed, setPressed] = React.useState(false)\n  const w = Math.max(26, 14 + children.length * 8)\n  const h = 24\n\n  React.useEffect(() => {\n    if (!listen) return\n    const down = (e: KeyboardEvent) => {\n      if (e.key.toLowerCase() === children.toLowerCase() || (children === '⌘' && e.metaKey)) setPressed(true)\n    }\n    const up = () => setPressed(false)\n    window.addEventListener('keydown', down)\n    window.addEventListener('keyup', up)\n    return () => { window.removeEventListener('keydown', down); window.removeEventListener('keyup', up) }\n  }, [children, listen])\n\n  const capTl: InkTimeline = React.useMemo(\n    () => ink(rect(w, h, seed), { seed, roughness: 0.9, speed: 3, width: 1.6 }),\n    [w, seed],\n  )\n  const baseTl: InkTimeline = React.useMemo(\n    () => ink([bowedLine(3, 0, w - 3, 0, 0.06, seed + 'b')], { seed: seed + ':b', roughness: 0.8, speed: 3, width: 1.4 }),\n    [w, seed],\n  )\n\n  return (\n    <kbd\n      className={cn('relative inline-block text-center font-label text-xs text-ink', className)}\n      style={{ width: w + 4, height: h + 8, background: 'transparent' }}\n    >\n      <span\n        className=\"absolute left-0.5 top-0 flex items-center justify-center transition-transform duration-75\"\n        style={{ width: w, height: h, transform: pressed ? 'translateY(3px)' : 'none' }}\n      >\n        <Ink overlay timeline={capTl} draw={false} color=\"var(--sui-ink)\" className=\"absolute\" />\n        <span className=\"relative\">{children}</span>\n      </span>\n      <span className=\"absolute bottom-0 left-0.5\">\n        <Ink overlay timeline={baseTl} draw={false} color=\"var(--sui-pencil)\" />\n      </span>\n    </kbd>\n  )\n}\n"
+    }
+  ]
+}

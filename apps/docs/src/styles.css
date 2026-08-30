@@ -1,0 +1,95 @@
+@import "tailwindcss";
+@source "../../../packages/ui/src";
+
+/* ---- Scribble UI ink tokens ---- */
+:root {
+  --sui-paper: #F4EDDD;
+  --sui-paper-2: #ECE3CE;
+  --sui-card: #FBF6EA;
+  --sui-ink: #1D1812;
+  --sui-ink-soft: #4A4336;
+  --sui-pencil: #8F8672;
+  --sui-rule: #DCD2BA;
+  --sui-accent: #2B4FD0;        /* ballpoint blue — the marks */
+  --sui-accent-soft: #DCE4FA;
+  --sui-brand: #D9482B;         /* editor's red — the brand */
+  --sui-danger: #C93A22;
+  --sui-hl: #FFD84D;
+  --sui-shadow: rgba(80, 62, 30, 0.16);
+  --sui-hand-font: "Caveat", cursive;
+}
+[data-theme="dark"] {
+  --sui-paper: #14111A;
+  --sui-paper-2: #1B1725;
+  --sui-card: #1E1928;
+  --sui-ink: #ECE6D8;
+  --sui-ink-soft: #BDB5A3;
+  --sui-pencil: #7E7668;
+  --sui-rule: #2E2839;
+  --sui-accent: #8CA4F8;
+  --sui-accent-soft: #26304E;
+  --sui-brand: #FF6B4A;
+  --sui-danger: #F0705A;
+  --sui-hl: #B89F2A;
+  --sui-shadow: rgba(0, 0, 0, 0.5);
+}
+
+@theme inline {
+  --color-paper: var(--sui-paper);
+  --color-paper-2: var(--sui-paper-2);
+  --color-card: var(--sui-card);
+  --color-ink: var(--sui-ink);
+  --color-ink-soft: var(--sui-ink-soft);
+  --color-pencil: var(--sui-pencil);
+  --color-rule: var(--sui-rule);
+  --color-accent: var(--sui-accent);
+  --color-accent-soft: var(--sui-accent-soft);
+  --color-brand: var(--sui-brand);
+  --color-danger: var(--sui-danger);
+  --color-hl: var(--sui-hl);
+  --font-display: "Shantell Sans", cursive;
+  --font-body: "Karla", system-ui, sans-serif;
+  --font-hand: "Caveat", cursive;
+  --font-label: "Spline Sans Mono", ui-monospace, monospace;
+}
+
+html { background: var(--sui-paper); scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--sui-ink);
+  background: var(--sui-paper);
+}
+
+/* the paper itself: fiber grain + a faint dotted grid */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.4 0 0 0 0 0.32 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+[data-theme="dark"] body::before { opacity: 0.35; }
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(var(--sui-rule) 1px, transparent 1px);
+  background-size: 26px 26px;
+  opacity: 0.5;
+}
+#root { position: relative; z-index: 1; }
+
+::selection { background: var(--sui-hl); color: #1D1812; }
+
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { background: var(--sui-rule); border-radius: 6px; border: 2px solid var(--sui-paper); }
+*::-webkit-scrollbar-track { background: transparent; }
+
+@keyframes fadeout { to { opacity: 0 } }
+@keyframes floaty { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-7px) } }
+@keyframes walk-x { from { transform: translateX(-80px) } to { transform: translateX(calc(100vw + 80px)) } }
