@@ -1,7 +1,7 @@
 'use client'
 import { arrow, bowedLine, ink, loopPath, sampleQuad, zigzag, type InkTimeline, type Pt, type Stroke } from '@scribbleui/engine'
 import * as React from 'react'
-import { Ink, useSeed } from '@/lib/ink'
+import { Ink, bounds, useSeed } from '@/lib/ink'
 import { cn } from '@/lib/utils'
 
 export type ArrowKind = 'straight' | 'curve' | 'loop' | 'zigzag' | 'double'
@@ -84,14 +84,21 @@ export function ScribbleArrowArt({
     return ink(strokes, { seed, roughness: 0.9, speed: 1.9, width: strokeWidth ?? 2 })
   }, [kind, length, arc, head, seed, strokeWidth])
 
+  // reserve the ROTATED bounding box so angled arrows never overlap neighbors
+  const box = React.useMemo(() => bounds(tl, 6), [tl])
+  const rad = (angle * Math.PI) / 180
+  const rw = Math.abs(box.w * Math.cos(rad)) + Math.abs(box.h * Math.sin(rad))
+  const rh = Math.abs(box.w * Math.sin(rad)) + Math.abs(box.h * Math.cos(rad))
   return (
     <span
       ref={hostRef}
       aria-hidden
-      className={cn('inline-block align-middle', className)}
-      style={{ transform: angle ? `rotate(${angle}deg)` : undefined }}
+      className={cn('inline-flex items-center justify-center align-middle', className)}
+      style={{ width: rw, height: rh }}
     >
-      <Ink timeline={tl} draw={armed} color={color} pad={6} />
+      <span className="inline-flex" style={{ transform: angle ? `rotate(${angle}deg)` : undefined }}>
+        <Ink timeline={tl} draw={armed} color={color} pad={6} />
+      </span>
     </span>
   )
 }

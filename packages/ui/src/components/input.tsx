@@ -1,7 +1,7 @@
 'use client'
 import { bowedLine, ink, tick, zigzag, type InkTimeline } from '@scribbleui/engine'
 import * as React from 'react'
-import { HandChars } from '@/lib/hand-chars'
+import { HandChars, type HandCharStyle } from '@/lib/hand-chars'
 import { Ink, useSeed } from '@/lib/ink'
 import { cn } from '@/lib/utils'
 
@@ -13,12 +13,14 @@ export interface ScribbleInputProps extends React.InputHTMLAttributes<HTMLInputE
   success?: boolean
   /** draw what the user types as handwriting (default true) */
   handwrite?: boolean
+  /** the hand your typing is drawn in */
+  handStyle?: HandCharStyle
   seed?: string
   containerClassName?: string
 }
 
-const CELL = 11.6 // Spline Sans Mono @ 15px ≈ 9px; we set 15px mono below → measure once
 const FONT_PX = 15
+const TRACK = 6 // extra letter-spacing px — wider cells keep the ink legible
 
 /**
  * A ruled writing line instead of a box — and what you type is drawn back
@@ -26,7 +28,7 @@ const FONT_PX = 15
  * teacher's red scribble.
  */
 export const ScribbleInput = React.forwardRef<HTMLInputElement, ScribbleInputProps>(
-  function ScribbleInput({ label, error, success, handwrite = true, seed: seedProp, className, containerClassName, onFocus, onBlur, onChange, id, value: valueProp, defaultValue, ...rest }, fwd) {
+  function ScribbleInput({ label, error, success, handwrite = true, handStyle = 'print', seed: seedProp, className, containerClassName, onFocus, onBlur, onChange, id, value: valueProp, defaultValue, ...rest }, fwd) {
     const seed = useSeed(seedProp)
     const autoId = React.useId()
     const inputId = id ?? autoId
@@ -34,7 +36,8 @@ export const ScribbleInput = React.forwardRef<HTMLInputElement, ScribbleInputPro
     const [internal, setInternal] = React.useState(String(defaultValue ?? ''))
     const value = valueProp !== undefined ? String(valueProp) : internal
     const [w, setW] = React.useState(220)
-    const [cell, setCell] = React.useState(CELL)
+    const [cell, setCell] = React.useState(15)
+    const [scrollX, setScrollX] = React.useState(0)
     const hostRef = React.useRef<HTMLDivElement>(null)
     const probeRef = React.useRef<HTMLSpanElement>(null)
 
@@ -67,32 +70,33 @@ export const ScribbleInput = React.forwardRef<HTMLInputElement, ScribbleInputPro
 
     return (
       <div ref={hostRef} className={cn('relative inline-block w-56 align-top', containerClassName)}>
-        <span ref={probeRef} aria-hidden className="invisible absolute font-label" style={{ fontSize: FONT_PX }}>0000000000</span>
+        <span ref={probeRef} aria-hidden className="invisible absolute font-label" style={{ fontSize: FONT_PX, letterSpacing: TRACK }}>0000000000</span>
         {label && (
           <label htmlFor={inputId} className="mb-0.5 block font-label text-[11px] uppercase tracking-wide text-pencil">
             {label}
           </label>
         )}
-        <div className="relative" style={{ height: 30 }}>
+        <div className="relative overflow-hidden" style={{ height: 30 }}>
           <input
             ref={fwd}
             id={inputId}
             aria-invalid={!!error}
             aria-describedby={error ? inputId + '-err' : undefined}
             value={value}
-            onChange={e => { if (valueProp === undefined) setInternal(e.target.value); onChange?.(e) }}
+            onChange={e => { if (valueProp === undefined) setInternal(e.target.value); setScrollX(e.target.scrollLeft); onChange?.(e) }}
+            onScroll={e => setScrollX((e.target as HTMLInputElement).scrollLeft)}
             onFocus={e => { setFocused(true); onFocus?.(e) }}
             onBlur={e => { setFocused(false); onBlur?.(e) }}
             className={cn('w-full bg-transparent pb-1 font-label outline-none placeholder:text-pencil', className)}
             style={{
-              border: 'none', fontSize: FONT_PX, letterSpacing: 0,
+              border: 'none', fontSize: FONT_PX, letterSpacing: TRACK,
               color: handwrite ? 'transparent' : 'var(--sui-ink)',
               caretColor: 'var(--sui-accent)',
             }}
             {...rest}
           />
           {handwrite && value && (
-            <HandChars value={value} cell={cell} size={19} x0={1} y0={21} seed={seed} color="var(--sui-ink)" />
+            <HandChars value={value} cell={cell} size={20} x0={-scrollX} y0={21} style={handStyle} seed={seed} color="var(--sui-ink)" />
           )}
           <div className="pointer-events-none absolute inset-x-0 bottom-0">
             <Ink timeline={lineTl} draw={false} color="var(--sui-pencil)" style={{ opacity: 0.45 }} overlay className="absolute" />

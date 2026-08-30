@@ -83,7 +83,7 @@ function Collage() {
 
 export function Home({ nav }: { nav: (h: string) => void }) {
   return (
-    <div className="mx-auto max-w-4xl px-6 pb-28 pt-12 lg:px-10">
+    <div className="mx-auto max-w-3xl px-6 pb-28 pt-12 lg:px-10">
       {/* hero */}
       <div className="relative">
         <Wordmark />
@@ -136,10 +136,7 @@ export function Home({ nav }: { nav: (h: string) => void }) {
       <div className="flex flex-col items-center gap-3 text-center">
         <Stickman pose="draw" size={100} seed="footer-sm" />
         <Handwritten hand="script" size={30} seed="cta-line" trigger="visible" color="var(--sui-ink-soft)">now go draw your interface</Handwritten>
-        <div className="flex gap-4">
-          <ScribbleButton variant="primary" withArrow onClick={() => nav('#/c/button')}>components</ScribbleButton>
-          <a href="https://iamartyaa.github.io" target="_blank" rel="noreferrer" className="no-underline"><ScribbleButton shape="underline">meet the pen-holder</ScribbleButton></a>
-        </div>
+        <ScribbleButton variant="primary" withArrow onClick={() => nav('#/c/button')}>browse the components</ScribbleButton>
       </div>
     </div>
   )

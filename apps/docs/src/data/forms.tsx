@@ -88,6 +88,13 @@ const input: ComponentEntry = {
     )
   },
   variants: [
+    { title: 'writing styles', note: 'print · cursive · marker — pick your hand', Demo: () => (
+      <div className="flex flex-wrap gap-10">
+        <ScribbleInput label="print" handStyle="print" defaultValue="neat separated" />
+        <ScribbleInput label="cursive" handStyle="cursive" defaultValue="flowing hand" />
+        <ScribbleInput label="marker" handStyle="marker" defaultValue="bold strokes" />
+      </div>
+    ) },
     { title: 'plain text mode', note: 'handwrite={false} for boring days', Demo: () => (
       <ScribbleInput label="plain" handwrite={false} placeholder="regular text, drawn line" />
     ) },
@@ -106,6 +113,7 @@ const input: ComponentEntry = {
 />`,
   props: [
     ['handwrite', 'boolean', 'draw typed characters as ink (default true)'],
+    ['handStyle', `'print' | 'cursive' | 'marker'`, 'which hand your typing is drawn in'],
     ['error', 'string', 'red teacher-scribble + handwritten note'],
     ['success', 'boolean', 'tick at the line\'s end'],
     ['label', 'string', 'field label'],
@@ -122,12 +130,18 @@ const textarea: ComponentEntry = {
   Demo: () => (
     <ScribbleTextarea label="field notes" placeholder="fill a line and a new rule appears…" containerClassName="w-full max-w-md" />
   ),
+  variants: [
+    { title: 'cursive pages', Demo: () => (
+      <ScribbleTextarea label="dear diary" handStyle="cursive" defaultValue="today the textarea learned longhand" containerClassName="w-full max-w-md" />
+    ) },
+  ],
   usage: `import { ScribbleTextarea } from '@/scribbleui/components/textarea'
 
 <ScribbleTextarea label="notes" rows={3} />`,
   props: [
     ['rows', 'number', 'minimum ruled lines'],
     ['handwrite', 'boolean', 'draw typed text as ink (default true)'],
+    ['handStyle', `'print' | 'cursive' | 'marker'`, 'which hand your typing is drawn in'],
   ],
 }
 

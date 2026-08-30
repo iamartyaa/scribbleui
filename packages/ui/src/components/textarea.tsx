@@ -1,7 +1,7 @@
 'use client'
 import { bowedLine, ink, rect, type InkTimeline } from '@scribbleui/engine'
 import * as React from 'react'
-import { HandChars } from '@/lib/hand-chars'
+import { HandChars, type HandCharStyle } from '@/lib/hand-chars'
 import { Ink, useSeed } from '@/lib/ink'
 import { cn } from '@/lib/utils'
 
@@ -9,19 +9,22 @@ export interface ScribbleTextareaProps extends React.TextareaHTMLAttributes<HTML
   label?: string
   /** draw typed text as handwriting (default true) */
   handwrite?: boolean
+  /** the hand your typing is drawn in */
+  handStyle?: HandCharStyle
   seed?: string
   containerClassName?: string
 }
 
-const LINE = 30
+const LINE = 32
 const FONT_PX = 15
+const TRACK = 6
 
 /**
  * A ruled page that grows a line ONLY when the current one is full — and
  * shrinks back when you delete. What you type is drawn as ink on the rules.
  */
 export const ScribbleTextarea = React.forwardRef<HTMLTextAreaElement, ScribbleTextareaProps>(
-  function ScribbleTextarea({ label, handwrite = true, seed: seedProp, className, containerClassName, rows = 3, onChange, id, value: valueProp, defaultValue, ...rest }, fwd) {
+  function ScribbleTextarea({ label, handwrite = true, handStyle = 'print', seed: seedProp, className, containerClassName, rows = 3, onChange, id, value: valueProp, defaultValue, ...rest }, fwd) {
     const seed = useSeed(seedProp)
     const autoId = React.useId()
     const taId = id ?? autoId
@@ -82,7 +85,7 @@ export const ScribbleTextarea = React.forwardRef<HTMLTextAreaElement, ScribbleTe
 
     return (
       <div ref={hostRef} className={cn('relative inline-block w-72 align-top', containerClassName)}>
-        <span ref={probeRef} aria-hidden className="invisible absolute font-label" style={{ fontSize: FONT_PX }}>0000000000</span>
+        <span ref={probeRef} aria-hidden className="invisible absolute font-label" style={{ fontSize: FONT_PX, letterSpacing: TRACK }}>0000000000</span>
         {label && (
           <label htmlFor={taId} className="mb-0.5 block font-label text-[11px] uppercase tracking-wide text-pencil">{label}</label>
         )}
@@ -98,7 +101,7 @@ export const ScribbleTextarea = React.forwardRef<HTMLTextAreaElement, ScribbleTe
             onChange={e => { if (valueProp === undefined) setInternal(e.target.value); onChange?.(e) }}
             className={cn('absolute inset-0 resize-none overflow-hidden bg-transparent px-3 pt-1.5 font-label outline-none placeholder:text-pencil', className)}
             style={{
-              border: 'none', fontSize: FONT_PX, lineHeight: LINE + 'px', letterSpacing: 0,
+              border: 'none', fontSize: FONT_PX, lineHeight: LINE + 'px', letterSpacing: TRACK,
               whiteSpace: 'pre-wrap', wordBreak: 'break-word',
               color: handwrite ? 'transparent' : 'var(--sui-ink)',
               caretColor: 'var(--sui-accent)',
@@ -106,7 +109,7 @@ export const ScribbleTextarea = React.forwardRef<HTMLTextAreaElement, ScribbleTe
             {...rest}
           />
           {handwrite && value && (
-            <HandChars lines={lines} value={value} cell={cell} size={18} x0={13} y0={27} lineHeight={LINE} seed={seed} color="var(--sui-ink)" />
+            <HandChars lines={lines} value={value} cell={cell} size={19} x0={12} y0={28} lineHeight={LINE} style={handStyle} seed={seed} color="var(--sui-ink)" />
           )}
         </div>
       </div>

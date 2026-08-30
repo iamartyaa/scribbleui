@@ -4,6 +4,7 @@ import {
 } from '@/components'
 import { CATEGORIES } from '../data'
 import { GitHubButton } from './GitHubButton'
+import { PenLicense } from './PenLicense'
 
 function Nav({ slug, nav }: { slug?: string; nav: (h: string) => void }) {
   return (
@@ -32,7 +33,7 @@ export function Shell({ slug, nav, children }: { slug?: string; nav: (h: string)
     <div className="min-h-screen">
       {/* top bar */}
       <header className="sticky top-0 z-40 border-b-[1.5px] border-ink" style={{ background: 'color-mix(in srgb, var(--sui-paper) 90%, transparent)', backdropFilter: 'blur(7px)' }}>
-        <div className="flex items-center justify-between gap-3 px-4 py-2 lg:px-6">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2 lg:px-6">
           <div className="flex items-center gap-3">
             <button aria-label="menu" onClick={() => setMenu(true)} className="cursor-pointer bg-transparent p-1 font-hand text-2xl lg:hidden" style={{ border: 'none', color: 'var(--sui-ink)' }}>≡</button>
             <a href="#/" className="flex items-baseline gap-1.5 no-underline">
@@ -57,6 +58,9 @@ export function Shell({ slug, nav, children }: { slug?: string; nav: (h: string)
           <Nav slug={slug} nav={nav} />
           <div className="mt-8 px-2">
             <Handwritten hand="script" size={19} seed="sb-note" color="var(--sui-pencil)" trigger="visible">psst — press p</Handwritten>
+            <p className="mt-4 font-label text-[9.5px] leading-4 text-pencil">
+              MIT · <a className="text-pencil" href="llms.txt">llms.txt</a><br />Hershey fonts, public domain
+            </p>
           </div>
         </aside>
 
@@ -68,12 +72,7 @@ export function Shell({ slug, nav, children }: { slug?: string; nav: (h: string)
         <main className="min-w-0 flex-1">{children}</main>
       </div>
 
-      <footer className="border-t-2 border-ink">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-6 py-5 font-body text-sm text-pencil">
-          <span>MIT · fonts derived from the public-domain Hershey collection · <a className="text-accent" href="/llms.txt">llms.txt</a></span>
-          <span className="font-hand text-lg text-brand">penned by <a className="text-brand" href="https://iamartyaa.github.io">Amartya</a> · <a className="text-brand" href="https://x.com/evilseyee">@evilseyee</a></span>
-        </div>
-      </footer>
+      <PenLicense />
     </div>
   )
 }

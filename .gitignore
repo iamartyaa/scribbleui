@@ -3,3 +3,4 @@ dist
 *.tsbuildinfo
 apps/docs/dist
 .DS_Store
+_to_delete/
